@@ -13,7 +13,7 @@ my_path = os.path.dirname(os.path.realpath(__file__))
 LTcircuit_OL = SimCommander(my_path+"\\Ampop_sim_malha_aberta.asc")
 LTcircuit_SR = SimCommander(my_path+"\\Ampop_sim_SR.asc")
 
-filename = "test_database.csv"
+filename = "database_"+str(n_amostras)+"_samples.csv"
 headers = ["Wd", "Wn", "Wout", "N", "DC Gain", "Freq Corte", "SR"]
 
 with open(filename, mode='w', newline='') as file:
@@ -26,7 +26,7 @@ W_n = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6
 W_out = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
 M_n = np.random.randint(low=1,high=20,size=n_amostras)
 
-for trial in range(3):
+for trial in range(n_amostras):
     LTcircuit_OL.set_parameters(Wd = W_d[trial])
     LTcircuit_OL.set_parameters(Wn = W_n[trial])
     LTcircuit_OL.set_parameters(Wout = W_out[trial])
@@ -65,14 +65,15 @@ for trial in range(3):
             break
     
     circuit_data = ltspice.Ltspice(os.path.dirname(__file__)+'\\Ampop_sim_SR_'+str(trial+1)+'.raw')
+    # circuit_data = ltspice.Ltspice(os.path.dirname(__file__)+'\\Ampop_sim_SR_1.raw')
     circuit_data.parse()
 
     V_out = circuit_data.get_data('V(Vo)')
     sim_time_data = circuit_data.get_time()
     deriv = np.gradient(V_out,sim_time_data)
-    slew_rate = max(deriv)
+    slew_rate = max(abs(deriv))
 
-    trial_data = [W_d[trial],W_e[trial],W_out[trial],M_n[trial],dc_value,band_pass, slew_rate]
+    trial_data = [W_d[trial],W_n[trial],W_out[trial],M_n[trial],dc_value,band_pass, slew_rate]
     with open(filename, mode='a', newline='') as file:  # Abre o arquivo em modo de adição
         writer = csv.writer(file)
         writer.writerow(trial_data)
@@ -80,6 +81,15 @@ for trial in range(3):
     print('Frequencia de corte: ', band_pass)
     print('Ganho DC: ', dc_value)
     print('SR: ', slew_rate)
+
+    os.remove(os.path.dirname(__file__)+'\\Ampop_sim_malha_aberta_'+str(trial+1)+'.raw')
+    os.remove(os.path.dirname(__file__)+'\\Ampop_sim_malha_aberta_'+str(trial+1)+'.op.raw')
+    os.remove(os.path.dirname(__file__)+'\\Ampop_sim_malha_aberta_'+str(trial+1)+'.net')
+    os.remove(os.path.dirname(__file__)+'\\Ampop_sim_malha_aberta_'+str(trial+1)+'.log')
+    os.remove(os.path.dirname(__file__)+'\\Ampop_sim_SR_'+str(trial+1)+'.raw')
+    os.remove(os.path.dirname(__file__)+'\\Ampop_sim_SR_'+str(trial+1)+'.op.raw')
+    os.remove(os.path.dirname(__file__)+'\\Ampop_sim_SR_'+str(trial+1)+'.net')
+    os.remove(os.path.dirname(__file__)+'\\Ampop_sim_SR_'+str(trial+1)+'.log')
 
 
 # resistencias = [500, 1e3, 2e3]

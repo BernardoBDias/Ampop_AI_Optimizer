@@ -14,7 +14,7 @@ LTcircuit_OL = SimCommander(my_path+"\\Ampop_sim_malha_aberta.asc")
 LTcircuit_SR = SimCommander(my_path+"\\Ampop_sim_SR.asc")
 
 filename = "test_database.csv"
-headers = ["Wd", "We", "Wout", "N", "DC Gain", "Freq Corte", "SR"]
+headers = ["Wd", "Wn", "Wout", "N", "DC Gain", "Freq Corte", "SR"]
 
 with open(filename, mode='w', newline='') as file:
     writer = csv.writer(file)
@@ -22,17 +22,17 @@ with open(filename, mode='w', newline='') as file:
 
 #Parâmetros a serem simulados:
 W_d = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
-W_e = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
+W_n = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
 W_out = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
 M_n = np.random.randint(low=1,high=20,size=n_amostras)
 
 for trial in range(3):
     LTcircuit_OL.set_parameters(Wd = W_d[trial])
-    LTcircuit_OL.set_parameters(We = W_e[trial])
+    LTcircuit_OL.set_parameters(Wn = W_n[trial])
     LTcircuit_OL.set_parameters(Wout = W_out[trial])
     LTcircuit_OL.set_parameters(N = M_n[trial])
     LTcircuit_SR.set_parameters(Wd = W_d[trial])
-    LTcircuit_SR.set_parameters(We = W_e[trial])
+    LTcircuit_SR.set_parameters(Wn = W_n[trial])
     LTcircuit_SR.set_parameters(Wout = W_out[trial])
     LTcircuit_SR.set_parameters(N = M_n[trial])
     LTcircuit_OL.run()

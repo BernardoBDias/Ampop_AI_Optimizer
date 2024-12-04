@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
+n_amostras = 100
 
 # Criação e ediação da netlist:
 my_path = os.path.dirname(os.path.realpath(__file__))
@@ -20,10 +21,10 @@ with open(filename, mode='w', newline='') as file:
     writer.writerow(headers)
 
 #Parâmetros a serem simulados:
-W_d = [0.1e-6, 0.2e-6, 0.3e-6]
-W_e = [4e-6, 5e-6, 6e-6]
-W_out = [9.5e-6, 10.5e-6, 11.5e-6]
-M_n = [6, 12, 24]
+W_d = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
+W_e = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
+W_out = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
+M_n = np.random.randint(low=1,high=20,size=n_amostras)
 
 for trial in range(3):
     LTcircuit_OL.set_parameters(Wd = W_d[trial])

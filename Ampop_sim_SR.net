@@ -1,0 +1,26 @@
+* D:\Documents\Mestrado\Mestrado UFRJ\Ampop AI Optimizer\Ampop_sim_SR.asc
+CL Vo 0 10p
+V1 Vdd 0 1.8
+Ib Vss N007 20µ
+XU6 Vdd N001 N001 Vdd UMC180_P W={Wout} L={Le} M=4
+XU7 Vdd N001 N002 Vdd UMC180_P W={Wout} L={Le} M=4
+XU8 Vdd N002 N004 Vdd UMC180_P W={Wout} L=Lout M={N}
+V6 N004 Vo 0
+V7 Vo N006 0
+XU9 N006 N007 Vss Vss UMC180_N W={Wn} L=5u M={N}
+XU3 N008 N007 Vss Vss UMC180_N W={Wn} L=5u M=1
+XU4 N007 N007 Vss Vss UMC180_N W={Wn} L=5u M=1
+XU1 N002 0 N005 Vss UMC180_N W={Wd} L={Ld} M=1
+XU2 N001 Vd- N005 Vss UMC180_N W={Wd} L={Ld} M=1
+V9 N005 N008 0
+V2 0 Vss 1.8
+C1 N004 N003 2p
+R3 N003 N002 1k
+V3 Vd- 0 PULSE(-2 2 0 1n 1n 0.5m 1m)
+.include UMC180.lib
+.param Vcm=0.9 Vd=0.1 Lout=1u Ld=1u Wd=0.2u Wout=10u Wn=5u Le=5u  Wb=5u Lb=5u N=11
+.tran 0 1m 1u
+.four 10meg 10 -1 V(Vo)
+.lib UMC180.lib
+.backanno
+.end

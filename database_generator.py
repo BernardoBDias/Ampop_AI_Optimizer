@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-n_amostras = 100
+n_amostras = 1000
 
 # Criação e ediação da netlist:
 my_path = os.path.dirname(os.path.realpath(__file__))
@@ -60,7 +60,7 @@ for trial in range(n_amostras):
     dc_value = abs(V_out[0])/abs(V_in[0])
     for i in range(n_points):
         if abs(V_out[i])/abs(V_in[i]) <= dc_value/np.sqrt(2):
-            print('-3dB = ', abs(V_out[i])/abs(V_in[i]))
+            # print('-3dB = ', abs(V_out[i])/abs(V_in[i]))
             band_pass = freq[i]
             break
     
@@ -81,13 +81,13 @@ for trial in range(n_amostras):
     # print('Frequencia de corte: ', band_pass)
     # print('Ganho DC: ', dc_value)
     # print('SR: ', slew_rate)
-    if n_amostras/trial == 10:
+    if n_amostras/(trial+1) == 10:
         print('10%')
-    if n_amostras/trial == 5:
+    if n_amostras/(trial+1) == 5:
         print('20%')
-    if n_amostras/trial == 2:
+    if n_amostras/(trial+1) == 2:
         print('50%')
-    if n_amostras/trial == 1.25:
+    if n_amostras/(trial+1) == 1.25:
         print('80%')
 
     os.remove(os.path.dirname(__file__)+'\\Ampop_sim_malha_aberta_'+str(trial+1)+'.raw')

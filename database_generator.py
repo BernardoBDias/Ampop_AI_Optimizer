@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-n_amostras = 10
+n_amostras = 20
 
 # Criação e ediação da netlist:
 my_path = os.path.dirname(os.path.realpath(__file__))
@@ -49,7 +49,9 @@ for trial in range(n_amostras):
     # print('abs path: ', absolute_path)
     # circuit_data = ltspice.Ltspice(os.path.dirname(__file__)+'\\Ampop_sim_malha_aberta_1.raw')
     raw_OL_file = os.path.dirname(__file__)+'\\Ampop_sim_malha_aberta_'+str(trial+1)+'.raw'
-    if os.path.isfile(raw_OL_file):
+    raw_SR_file = os.path.dirname(__file__)+'\\Ampop_sim_SR_'+str(trial+1)+'.raw'
+
+    if os.path.isfile(raw_OL_file) & os.path.isfile(raw_SR_file):
         circuit_data = ltspice.Ltspice(raw_OL_file)
         circuit_data.parse()
         # print('Parse and raw done!')
@@ -74,9 +76,7 @@ for trial in range(n_amostras):
         os.remove(os.path.dirname(__file__)+'\\Ampop_sim_malha_aberta_'+str(trial+1)+'.net')
         os.remove(os.path.dirname(__file__)+'\\Ampop_sim_malha_aberta_'+str(trial+1)+'.log')
     
-    raw_SR_file = os.path.dirname(__file__)+'\\Ampop_sim_SR_'+str(trial+1)+'.raw'
-
-    if os.path.isfile(raw_SR_file):
+    
         circuit_data = ltspice.Ltspice(raw_SR_file)
         # circuit_data = ltspice.Ltspice(os.path.dirname(__file__)+'\\Ampop_sim_SR_1.raw')
         circuit_data.parse()
@@ -95,6 +95,8 @@ for trial in range(n_amostras):
         os.remove(os.path.dirname(__file__)+'\\Ampop_sim_SR_'+str(trial+1)+'.op.raw')
         os.remove(os.path.dirname(__file__)+'\\Ampop_sim_SR_'+str(trial+1)+'.net')
         os.remove(os.path.dirname(__file__)+'\\Ampop_sim_SR_'+str(trial+1)+'.log')
+    else:
+        trial += 1
 
     # print('Frequencia de corte: ', band_pass)
     # print('Ganho DC: ', dc_value)

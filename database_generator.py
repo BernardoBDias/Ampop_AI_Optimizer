@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-n_amostras = 20
+n_amostras = 3
 
 # Criação e ediação da netlist:
 my_path = os.path.dirname(os.path.realpath(__file__))
@@ -13,30 +13,38 @@ my_path = os.path.dirname(os.path.realpath(__file__))
 LTcircuit_OL = SimCommander(my_path+"\\Ampop_sim_malha_aberta.asc")
 LTcircuit_SR = SimCommander(my_path+"\\Ampop_sim_SR.asc")
 
-filename = "database_"+str(n_amostras)+"_samples.csv"
-headers = ["Wd", "Wn", "We", "Wout", "N", "DC Gain", "Freq Corte", "SR"]
+Av_q = np.random.uniform(1e3,5e3)
+SR_q = np.random.uniform(1e6,10e6)
+GB_q = np.random.uniform(1e6,10e6)
+
+filename = "database_"+str(n_amostras)+"_samples_LossF.csv"
+headers = ["Wd", "Wn", "Wout", "Ib", "N", "DC Gain", "GB", "SR", "Custo"]
 
 with open(filename, mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(headers)
 
 #Parâmetros a serem simulados:
-W_d = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
-W_n = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6
-W_e = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6
-W_out = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
-M_n = np.random.randint(low=1,high=20,size=n_amostras)
+# W_d = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
+# W_n = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6
+# W_e = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6
+# W_out = np.random.randint(low=1,high=50,size=n_amostras)*0.2e-6 
+W_d = np.random.uniform(low=1e-6,high=50e-6,size=n_amostras)
+W_n = np.random.uniform(low=1e-6,high=50e-6,size=n_amostras)
+W_out = np.random.uniform(low=1e-6,high=50e-6,size=n_amostras)
+I_b = np.random.uniform(low=1e-6,high=100e-6,size=n_amostras)
+M_n = np.random.randint(low=1,high=50,size=n_amostras)
 
 for trial in range(n_amostras):
     LTcircuit_OL.set_parameters(Wd = W_d[trial],
                                 Wn = W_n[trial],
-                                We = W_e[trial],
                                 Wout = W_out[trial],
+                                Ib = I_b[trial],
                                 N = M_n[trial])
     LTcircuit_SR.set_parameters(Wd = W_d[trial],
                                 Wn = W_n[trial],
-                                We = W_e[trial],
                                 Wout = W_out[trial],
+                                Ib = I_b[trial],
                                 N = M_n[trial])
     LTcircuit_OL.run()
     LTcircuit_OL.wait_completion()
@@ -64,11 +72,15 @@ for trial in range(n_amostras):
         # print('Freq len: ', len(freq))
 
         n_points = len(np.real(V_out))
-        dc_value = abs(V_out[0])/abs(V_in[0])
+        Av = abs(V_out[0])/abs(V_in[0])
         for i in range(n_points):
-            if abs(V_out[i])/abs(V_in[i]) <= dc_value/np.sqrt(2):
+            # if abs(V_out[i])/abs(V_in[i]) <= dc_value/np.sqrt(2):
+            #     # print('-3dB = ', abs(V_out[i])/abs(V_in[i]))
+            #     band_pass = freq[i]
+            #     break
+            if abs(V_out[i])/abs(V_in[i]) <= 1:
                 # print('-3dB = ', abs(V_out[i])/abs(V_in[i]))
-                band_pass = freq[i]
+                GB = freq[i]
                 break
 
         os.remove(os.path.dirname(__file__)+'\\Ampop_sim_malha_aberta_'+str(trial+1)+'.raw')
@@ -86,7 +98,21 @@ for trial in range(n_amostras):
         deriv = np.gradient(V_out,sim_time_data)
         slew_rate = max(abs(deriv))
 
-        trial_data = [W_d[trial],W_n[trial],W_e[trial],W_out[trial],M_n[trial],dc_value,band_pass, slew_rate]
+        custo_SR = 1 - slew_rate/SR_q
+        if custo_SR < 0:
+            custo_SR = 0
+            
+        custo_GB = 1 - GB/GB_q
+        if custo_GB < 0:
+            custo_GB = 0
+
+        custo_Av = 1 - Av/Av_q
+        if custo_Av < 0:
+            custo_Av = 0
+
+        custo_total = np.sqrt(custo_Av**2 + custo_GB**2 + custo_SR**2)/3
+
+        trial_data = [W_d[trial],W_n[trial],W_out[trial],I_b[trial], M_n[trial],Av,GB, slew_rate, custo_total]
         with open(filename, mode='a', newline='') as file:  # Abre o arquivo em modo de adição
             writer = csv.writer(file)
             writer.writerow(trial_data)

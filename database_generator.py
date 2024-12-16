@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-n_amostras = 3
+n_amostras = 1001
 
 # Criação e ediação da netlist:
 my_path = os.path.dirname(os.path.realpath(__file__))
